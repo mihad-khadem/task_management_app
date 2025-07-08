@@ -1,0 +1,32 @@
+node_modules
+
+# Output
+dist
+
+# Config
+.env
+
+# Database
+*.db
+
+# Logs
+*.log
+
+# Cache
+*.cache
+
+# Temp
+*.tmp
+
+# Docker
+.dockerignore
+
+# Yarn
+.yarn
+
+# VSCode
+.vscode
+
+# Other
+.DS_Store   
+

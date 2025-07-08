@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    restart: always
+    ports:
+      - 5433:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task_management_db
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8085:8080
+
+volumes:
+  postgres-data:
