@@ -189,15 +189,4 @@ npx prisma studio           # Explore DB in browser
 Pull requests, issues, and ideas are welcome!
 Let’s build this into a full production-ready task suite.
 
-```
-
 ---
-
-Would you like:
-
-- a matching `docker-compose.yml` added to the README?
-- Postman collection or API schema doc suggestion?
-- Separate `docs/` folder structure?
-
-Let me know and I’ll include it.
-```

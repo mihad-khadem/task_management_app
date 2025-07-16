@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { Request, Response } from 'express';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -13,8 +14,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
     const status = this.getStatusCode(exception);
     const message = this.getErrorMessage(exception);
@@ -26,9 +27,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     response.status(status).json({
       statusCode: status,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toLocaleString('en-BD', {
+        timeZone: 'Asia/Dhaka',
+        hour12: false,
+      }),
       path: request.url,
-      error: message,
+      error: typeof message === 'string' ? { message } : message,
     });
   }
 
@@ -39,24 +43,27 @@ export class AllExceptionsFilter implements ExceptionFilter {
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
-  private getErrorMessage(exception: unknown): string | string[] {
+  private getErrorMessage(exception: unknown): string | object {
     if (exception instanceof HttpException) {
       const res = exception.getResponse();
 
-      if (typeof res === 'string') {
-        return res;
-      }
+      if (typeof res === 'string') return res;
 
       if (typeof res === 'object' && res !== null) {
-        // Narrow with "in" operator and type checks
-        if ('message' in res) {
-          const msg = (res as { message?: unknown }).message;
-          if (typeof msg === 'string' || Array.isArray(msg)) {
-            return msg;
-          }
-          return JSON.stringify(msg);
+        // Nest ValidationPipe errors come in this structure
+        if ('message' in res && 'errors' in res) {
+          return res;
         }
-        return JSON.stringify(res);
+
+        // Fallback if only "message" exists
+        if ('message' in res) {
+          const msg = (res as any).message;
+          if (typeof msg === 'string' || Array.isArray(msg)) {
+            return { message: 'Validation failed', errors: msg };
+          }
+        }
+
+        return res;
       }
 
       return exception.message;
