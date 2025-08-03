@@ -1,9 +1,28 @@
+
 services:
+  app:
+    build: .
+    container_name: task_management_app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/task_management_db
+      JWT_SECRET: super-secret
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+      - /app/node_modules # Prevent node_modules overwrite by host
+    working_dir: /app
+    command: bun run start:dev
+    stdin_open: true
+    tty: true
+
   postgres:
     image: postgres:16
     restart: always
     ports:
-      - 5433:5432
+      - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
@@ -15,7 +34,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8085:8080
+      - "8085:8080"
 
 volumes:
   postgres-data:
